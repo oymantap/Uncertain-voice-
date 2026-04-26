@@ -40,7 +40,7 @@ class FloatingService : Service() {
         val mainIcon = floatingView.findViewById<ImageView>(R.id.collapsed_iv)
         val menuLayout = floatingView.findViewById<LinearLayout>(R.id.menu_layout)
         
-        // --- FITUR GESER-GESER ---
+        // FITUR GESER
         mainIcon.setOnTouchListener(object : View.OnTouchListener {
             private var initialX = 0; private var initialY = 0
             private var initialTouchX = 0f; private var initialTouchY = 0f
@@ -66,44 +66,48 @@ class FloatingService : Service() {
             }
         })
 
-        mainIcon.setOnClickListener { menuLayout.visibility = View.VISIBLE }
+        mainIcon.setOnClickListener { 
+            menuLayout.visibility = if (menuLayout.visibility == View.GONE) View.VISIBLE else View.GONE 
+        }
 
-        // --- BUTTONS LOGIC ---
+        // TUTUP MENU DOANG
         floatingView.findViewById<ImageButton>(R.id.btn_close_menu).setOnClickListener { 
             menuLayout.visibility = View.GONE 
         }
 
-        // Tahan untuk Record, Lepas untuk Simpan
+        // TAHAN RECORD, LEPAS SIMPAN
         floatingView.findViewById<ImageButton>(R.id.btn_record).setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) startRecording()
-            else if (event.action == MotionEvent.ACTION_UP) stopRecording()
+            when(event.action) {
+                MotionEvent.ACTION_DOWN -> startRecording()
+                MotionEvent.ACTION_UP -> stopRecording()
+            }
             true
         }
 
-        // Hapus Rekaman (Tong Sampah)
+        // HAPUS (TONG SAMPAH)
         floatingView.findViewById<ImageButton>(R.id.btn_delete).setOnClickListener {
             audioFile?.delete()
             Toast.makeText(this, "Voice Purged!", Toast.LENGTH_SHORT).show()
         }
 
-        // PILIHAN SUARA
+        // PILIHAN SUARA (CEWE & ALIEN)
         floatingView.findViewById<ImageButton>(R.id.btn_voice_girl).setOnClickListener {
-            currentPitch = 1.6f
-            Toast.makeText(this, "Filter: Female/Child", Toast.LENGTH_SHORT).show()
+            currentPitch = 1.8f
+            Toast.makeText(this, "Mode: Girl / Child", Toast.LENGTH_SHORT).show()
         }
         floatingView.findViewById<ImageButton>(R.id.btn_voice_alien).setOnClickListener {
-            currentPitch = 0.6f
-            Toast.makeText(this, "Filter: Alien/Deep", Toast.LENGTH_SHORT).show()
+            currentPitch = 0.5f
+            Toast.makeText(this, "Mode: Alien / Robot", Toast.LENGTH_SHORT).show()
         }
 
-        // PLAY DENGAN VOICE CHANGER
+        // PLAY REAL VOICE CHANGER
         floatingView.findViewById<ImageButton>(R.id.btn_play).setOnClickListener { playVoice() }
 
         windowManager.addView(floatingView, params)
     }
 
     private fun startRecording() {
-        audioFile = File(externalCacheDir, "voice_node.pcm")
+        audioFile = File(externalCacheDir, "raw_voice.pcm")
         isRecording = true
         Thread {
             val bufferSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
@@ -123,7 +127,7 @@ class FloatingService : Service() {
     private fun stopRecording() {
         isRecording = false
         recorder?.stop(); recorder?.release(); recorder = null
-        Toast.makeText(this, "Voice Captured!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show()
     }
 
     private fun playVoice() {
@@ -135,7 +139,7 @@ class FloatingService : Service() {
             .setBufferSizeInBytes(data.size).setTransferMode(AudioTrack.MODE_STATIC).build()
         
         track.write(data, 0, data.size)
-        track.playbackParams = PlaybackParams().setPitch(currentPitch) // VOICE CHANGER MAGIC
+        track.playbackParams = PlaybackParams().setPitch(currentPitch)
         track.play()
     }
 
