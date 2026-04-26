@@ -35,6 +35,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
     
-    // PERBAIKAN DI SINI: Alamat JitPack yang benar untuk TarsosDSP
-    implementation 'com.github.JorenSix:TarsosDSP:TarsosDSP-2.4'
+    // Pakai cara ini supaya JitPack gak bingung nyari filenya
+    implementation 'com.github.JorenSix:TarsosDSP:v2.4'
 }
