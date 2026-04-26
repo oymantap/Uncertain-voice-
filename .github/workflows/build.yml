@@ -17,7 +17,7 @@ jobs:
 
     # LANGKAH PERBAIKAN: Kita bikin ulang wrapper-nya biar gak corrupt
     - name: Repair Gradle Wrapper
-      run: gradle wrapper
+      run: gradle wrapper --gradle-version 8.5
 
     - name: Grant Execute Permission
       run: chmod +x gradlew
