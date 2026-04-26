@@ -17,13 +17,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Sesuaiin sama XML lo (btn_activate & btn_stop_service)
         val btnActivate = findViewById<Button>(R.id.btn_activate)
         val btnStop = findViewById<Button>(R.id.btn_stop_service)
         val statusEngine = findViewById<TextView>(R.id.status_engine)
 
         btnActivate.setOnClickListener {
-            checkOverlayPermission()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+                val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+                startActivityForResult(intent, 123)
+            } else {
+                startFloatingService()
+            }
         }
 
         btnStop.setOnClickListener {
@@ -35,22 +39,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkOverlayPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
-            startActivityForResult(intent, 123)
-        } else {
-            startFloatingService()
-        }
-    }
-
     private fun startFloatingService() {
         startService(Intent(this, FloatingService::class.java))
         findViewById<Button>(R.id.btn_activate).visibility = View.GONE
         findViewById<Button>(R.id.btn_stop_service).visibility = View.VISIBLE
         findViewById<TextView>(R.id.status_engine).text = "● ENGINE STATUS: ACTIVE"
         findViewById<TextView>(R.id.status_engine).setTextColor(android.graphics.Color.CYAN)
-        Toast.makeText(this, "Node Activated!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Node Active!", Toast.LENGTH_SHORT).show()
     }
 }
-
