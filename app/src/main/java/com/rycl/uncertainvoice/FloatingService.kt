@@ -5,19 +5,20 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.IBinder
 import android.view.Gravity
-import android.view.WindowManager
-import android.widget.ImageView
 import android.view.MotionEvent
 import android.view.View
-
-// Tambahkan variabel di atas class FloatingService
-private var isRecording = false
-private val audioProcessor = AudioProcessor()
+import android.view.WindowManager
+import android.widget.ImageView
+import android.widget.Toast
 
 class FloatingService : Service() {
 
     private lateinit var windowManager: WindowManager
     private lateinit var floatingBall: ImageView
+    private var isRecording = false
+    
+    // Panggil class AudioProcessor yang sudah kita bahas sebelumnya
+    private val audioProcessor = AudioProcessor()
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -25,15 +26,15 @@ class FloatingService : Service() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
-        // 1. Buat tampilan bola (Logo kamu)
+        // 1. Buat tampilan bola (Pakai icon sistem dulu biar nggak error build)
         floatingBall = ImageView(this)
-        floatingBall.setImageResource(R.drawable.logo_kamu) // Ganti dengan logo di folder res/drawable
+        floatingBall.setImageResource(android.R.drawable.ic_btn_speak_now) 
 
         // 2. Atur posisi dan tipe jendela (Overlay)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, // Izin tampil di atas app lain
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         )
@@ -42,7 +43,7 @@ class FloatingService : Service() {
         params.x = 100
         params.y = 100
 
-        // 3. Tambahkan fitur geser (Drag) agar bola bisa dipindah
+        // 3. Fitur Geser & Klik
         floatingBall.setOnTouchListener(object : View.OnTouchListener {
             private var initialX = 0
             private var initialY = 0
@@ -64,27 +65,16 @@ class FloatingService : Service() {
                         windowManager.updateViewLayout(floatingBall, params)
                         return true
                     }
-                    // Di dalam setOnTouchListener, bagian ACTION_UP:
-MotionEvent.ACTION_UP -> {
-    val diffX = (event.rawX - initialTouchX).toInt()
-    val diffY = (event.rawY - initialTouchY).toInt()
+                    MotionEvent.ACTION_UP -> {
+                        val diffX = Math.abs(event.rawX - initialTouchX)
+                        val diffY = Math.abs(event.rawY - initialTouchY)
 
-    // Jika user cuma klik (bukan geser)
-    if (diffX < 10 && diffY < 10) {
-        if (!isRecording) {
-            // Mulai rekam & ubah suara (Contoh: Pitch 1.5 buat suara anak kecil)
-            audioProcessor.startChangingVoice(1.5)
-            floatingBall.alpha = 0.5f // Kasih efek transparan pas lagi rekam
-            isRecording = true
-        } else {
-            // Berhenti
-            audioProcessor.stopProcessing()
-            floatingBall.alpha = 1.0f
-            isRecording = false
-        }
-    }
-    return true
-}
+                        // Jika jarak geser kecil, dianggap KLIK
+                        if (diffX < 10 && diffY < 10) {
+                            toggleVoiceChanger()
+                        }
+                        return true
+                    }
                 }
                 return false
             }
@@ -93,9 +83,29 @@ MotionEvent.ACTION_UP -> {
         windowManager.addView(floatingBall, params)
     }
 
+    private fun toggleVoiceChanger() {
+        if (!isRecording) {
+            // Mulai rekam & ubah suara (Contoh: Pitch 2.0 = Suara Chipmunk)
+            try {
+                audioProcessor.startChangingVoice(2.0)
+                isRecording = true
+                floatingBall.alpha = 0.5f // Tandanya lagi aktif
+                Toast.makeText(this, "Voice Changer Aktif!", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(this, "Gagal akses Mic!", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // Berhenti
+            audioProcessor.stopProcessing()
+            isRecording = false
+            floatingBall.alpha = 1.0f
+            Toast.makeText(this, "Voice Changer Mati", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        audioProcessor.stopProcessing()
         if (::floatingBall.isInitialized) windowManager.removeView(floatingBall)
     }
 }
-
