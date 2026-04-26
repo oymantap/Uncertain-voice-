@@ -4,8 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.media.*
-import android.os.Build
-import android.os.IBinder
+import android.os.*
 import android.view.*
 import android.widget.*
 import androidx.appcompat.view.ContextThemeWrapper
@@ -66,48 +65,78 @@ class FloatingService : Service() {
             }
         })
 
+        // RECORD LOGIC
         floatingView.findViewById<ImageButton>(R.id.btn_record).setOnTouchListener { _, e ->
-            if (e.action == MotionEvent.ACTION_DOWN) startRecording()
-            else if (e.action == MotionEvent.ACTION_UP) stopRecording()
+            when(e.action) {
+                MotionEvent.ACTION_DOWN -> startRecording()
+                MotionEvent.ACTION_UP -> stopRecording()
+            }
             true
         }
 
-        floatingView.findViewById<ImageButton>(R.id.btn_voice_girl).setOnClickListener { currentPitch = 1.8f }
-        floatingView.findViewById<ImageButton>(R.id.btn_voice_alien).setOnClickListener { currentPitch = 0.5f }
+        // FILTER BUTTONS (FIXED: Gak bakal close floating)
+        floatingView.findViewById<ImageButton>(R.id.btn_voice_girl).setOnClickListener { 
+            currentPitch = 1.8f 
+            showMsg("Filter: Girl")
+        }
+        floatingView.findViewById<ImageButton>(R.id.btn_voice_alien).setOnClickListener { 
+            currentPitch = 0.5f 
+            showMsg("Filter: Alien")
+        }
         floatingView.findViewById<ImageButton>(R.id.btn_play).setOnClickListener { playVoice() }
-        floatingView.findViewById<ImageButton>(R.id.btn_delete).setOnClickListener { audioFile?.delete() }
-        floatingView.findViewById<ImageButton>(R.id.btn_close_menu).setOnClickListener { menuLayout.visibility = View.GONE }
+        floatingView.findViewById<ImageButton>(R.id.btn_delete).setOnClickListener { 
+            audioFile?.delete()
+            showMsg("Deleted")
+        }
 
         windowManager.addView(floatingView, params)
+    }
+
+    private fun showMsg(txt: String) {
+        Handler(Looper.getMainLooper()).post { Toast.makeText(this, txt, Toast.LENGTH_SHORT).show() }
     }
 
     private fun startRecording() {
         audioFile = File(externalCacheDir, "v.pcm")
         isRecording = true
         Thread {
-            val bufferSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
-            recorder = AudioRecord(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize)
-            recorder?.startRecording()
-            val os = FileOutputStream(audioFile)
-            val data = ByteArray(bufferSize)
-            while (isRecording) { recorder?.read(data, 0, bufferSize); os.write(data) }
-            os.close()
+            try {
+                val bufferSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
+                recorder = AudioRecord(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize)
+                recorder?.startRecording()
+                val os = FileOutputStream(audioFile)
+                val data = ByteArray(bufferSize)
+                while (isRecording) { recorder?.read(data, 0, bufferSize); os.write(data) }
+                os.close()
+            } catch (e: Exception) { e.printStackTrace() }
         }.start()
     }
 
-    private fun stopRecording() { isRecording = false; recorder?.stop(); recorder?.release(); recorder = null }
+    private fun stopRecording() { 
+        isRecording = false
+        try {
+            recorder?.stop()
+            recorder?.release()
+            recorder = null 
+        } catch (e: Exception) {}
+    }
 
     private fun playVoice() {
         if (audioFile == null || !audioFile!!.exists()) return
-        val data = audioFile!!.readBytes()
-        val track = AudioTrack.Builder()
-            .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build())
-            .setAudioFormat(AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT).setSampleRate(44100).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
-            .setBufferSizeInBytes(data.size).setTransferMode(AudioTrack.MODE_STATIC).build()
-        track.write(data, 0, data.size)
-        track.playbackParams = PlaybackParams().setPitch(currentPitch)
-        track.play()
+        Thread {
+            try {
+                val data = audioFile!!.readBytes()
+                val track = AudioTrack.Builder()
+                    .setAudioAttributes(AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build())
+                    .setAudioFormat(AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT).setSampleRate(44100).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
+                    .setBufferSizeInBytes(data.size).setTransferMode(AudioTrack.MODE_STATIC).build()
+                track.write(data, 0, data.size)
+                track.playbackParams = PlaybackParams().setPitch(currentPitch)
+                track.play()
+            } catch (e: Exception) { e.printStackTrace() }
+        }.start()
     }
 
     override fun onDestroy() { super.onDestroy(); if (::floatingView.isInitialized) windowManager.removeView(floatingView) }
 }
+
