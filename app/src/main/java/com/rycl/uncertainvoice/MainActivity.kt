@@ -14,11 +14,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Bikin tombol sederhana buat aktifin bola
-        val btnStart = Button(this).apply {
-            text = "Aktifkan Uncertain Voice"
-        }
-        setContentView(btnStart)
+        // 1. Panggil layout XML yang sudah kita buat tadi
+        setContentView(R.layout.activity_main)
+
+        // 2. Hubungkan tombol dengan ID yang ada di XML
+        val btnStart = findViewById<Button>(R.id.btn_start_service)
 
         btnStart.setOnClickListener {
             checkOverlayPermission()
@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkOverlayPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(this)) {
-                // Kirim user ke pengaturan buat aktifin izin overlay
+                Toast.makeText(this, "Izinkan Overlay dulu, Rycl!", Toast.LENGTH_SHORT).show()
                 val intent = Intent(
                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:$packageName")
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun startFloatingService() {
         startService(Intent(this, FloatingService::class.java))
-        finish() // Tutup aplikasi utama, biarkan bola melayang sendiri
+        // Jangan langsung finish() dulu biar user bisa baca tutorial atau klik sosmed kamu
+        Toast.makeText(this, "Floating Active!", Toast.LENGTH_SHORT).show()
     }
 }
-
