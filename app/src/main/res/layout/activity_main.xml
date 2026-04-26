@@ -3,46 +3,124 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0A0A0C">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="25dp"
         android:gravity="center_horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingBottom="15dp"
+            android:layout_marginBottom="15dp">
+            
+            <Button android:id="@+id/lang_en" style="?android:attr/buttonStyleSmall" android:layout_width="wrap_content" android:layout_height="35dp" android:text="EN" android:backgroundTint="#00F3FF" android:textColor="#000" android:textSize="10sp" android:layout_margin="2dp"/>
+            <Button android:id="@+id/lang_id" style="?android:attr/buttonStyleSmall" android:layout_width="wrap_content" android:layout_height="35dp" android:text="ID" android:backgroundTint="#1A00F3FF" android:textColor="#00F3FF" android:textSize="10sp" android:layout_margin="2dp"/>
+            <Button android:id="@+id/lang_es" style="?android:attr/buttonStyleSmall" android:layout_width="wrap_content" android:layout_height="35dp" android:text="ES" android:backgroundTint="#1A00F3FF" android:textColor="#00F3FF" android:textSize="10sp" android:layout_margin="2dp"/>
+            <Button android:id="@+id/lang_cn" style="?android:attr/buttonStyleSmall" android:layout_width="wrap_content" android:layout_height="35dp" android:text="CN" android:backgroundTint="#1A00F3FF" android:textColor="#00F3FF" android:textSize="10sp" android:layout_margin="2dp"/>
+        </LinearLayout>
+
         <TextView
+            android:id="@+id/title_main"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="UNCERTAIN VOICE"
             android:textColor="#00F3FF"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-        <LinearLayout
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:shadowColor="#00F3FF"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="10" />
+
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#1A00F3FF"
+            android:background="#1AFF00FF"
             android:layout_marginVertical="20dp"
-            android:padding="10dp">
+            android:padding="12dp">
+            <View 
+                android:layout_width="4dp" 
+                android:layout_height="match_parent" 
+                android:background="#FF00FF" 
+                android:layout_gravity="start"/>
             <TextView
                 android:id="@+id/status_engine"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="● ENGINE STATUS: READY"
+                android:text="ENGINE STATUS: READY"
                 android:textColor="#39FF14"
+                android:layout_marginStart="10dp"
                 android:textStyle="bold"/>
-        </LinearLayout>
+        </FrameLayout>
+
         <Button
             android:id="@+id/btn_activate"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="65dp"
             android:text="ACTIVATE FLOATING NODE"
-            android:backgroundTint="#FF00FF"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FF00FF"
+            android:backgroundTint="#00000000"
+            android:background="@drawable/border_neon_pink"
+            android:textStyle="bold" />
+
         <Button
             android:id="@+id/btn_stop_service"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="65dp"
             android:text="TERMINATE NODE"
             android:visibility="gone"
-            android:backgroundTint="#666666" />
+            android:backgroundTint="#444444" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:layout_marginTop="20dp"
+            android:alignmentMode="alignMargins">
+            
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:background="#000"
+                android:padding="10dp"
+                android:layout_marginEnd="5dp"
+                android:gravity="center"
+                android:backgroundTint="#000"
+                android:backgroundTintMode="src_over">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TIKTOK" android:textColor="#FF0050" android:textSize="12sp" android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:background="#FF0000"
+                android:padding="10dp"
+                android:layout_marginStart="5dp"
+                android:gravity="center">
+                <TextView android:id="@+id/txt_yt" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SUBSCRIBE" android:textColor="#FFF" android:textSize="12sp" android:textStyle="bold"/>
+            </LinearLayout>
+        </GridLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#0DFFFFFF"
+            android:padding="15dp"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#0DFFFFFF">
+            <TextView android:id="@+id/guide_title" android:text="SYSTEM_GUIDE:" android:textColor="#00F3FF" android:textStyle="bold" />
+            <TextView android:id="@+id/guide_steps" android:layout_width="match_parent" android:layout_height="wrap_content" 
+                android:text="> Click Activate\n> Grant Overlay\n> Record Voice\n> Play Filter" android:textColor="#CCCCCC" android:lineSpacingExtra="4dp" android:layout_marginTop="8dp"/>
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>
+            
