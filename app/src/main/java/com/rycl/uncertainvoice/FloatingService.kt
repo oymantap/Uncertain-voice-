@@ -4,47 +4,25 @@ import android.app.Service
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.IBinder
-import android.view.Gravity
-import android.view.MotionEvent
-import android.view.View
-import android.view.WindowManager
-import android.widget.ImageView
-import android.widget.Toast
+import android.view.*
+import android.widget.*
+import android.graphics.drawable.GradientDrawable
+import android.graphics.Color
 
 class FloatingService : Service() {
-
     private lateinit var windowManager: WindowManager
-    private lateinit var floatingBall: ImageView
-    private var isRecording = false
-    
-    // Panggil class AudioProcessor yang sudah kita bahas sebelumnya
-    private val audioProcessor = AudioProcessor()
+    private lateinit var floatingView: View
+    private var isMenuOpen = false
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        
+        // Buat View Utama (Bola Floating)
+        floatingView = LayoutInflater.from(this).inflate(R.layout.layout_floating_widget, null)
 
-        // 1. Buat tampilan bola (Pakai icon sistem dulu biar nggak error build)
-        // Di dalam onCreate() FloatingService.kt
-floatingBall = ImageView(this)
-
-// Kasih background putih bulat biar logo hitam kamu kelihatan
-val shape = android.graphics.drawable.GradientDrawable()
-shape.shape = android.graphics.drawable.GradientDrawable.OVAL
-shape.setColor(android.graphics.Color.WHITE) // Background Putih
-floatingBall.background = shape
-
-// Atur padding biar logonya gak nempel ke pinggir background putih
-floatingBall.setPadding(20, 20, 20, 20)
-
-// Baru pasang logo kamu (Pastikan filenya sudah di-upload ke drawable)
-floatingBall.setImageResource(R.drawable.logo_kamu) 
-
-        floatingBall.setImageResource(android.R.drawable.ic_btn_speak_now) 
-
-        // 2. Atur posisi dan tipe jendela (Overlay)
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -57,36 +35,43 @@ floatingBall.setImageResource(R.drawable.logo_kamu)
         params.x = 100
         params.y = 100
 
-        // 3. Fitur Geser & Klik
-        floatingBall.setOnTouchListener(object : View.OnTouchListener {
-            private var initialX = 0
-            private var initialY = 0
-            private var initialTouchX = 0f
-            private var initialTouchY = 0f
+        val rootBase = floatingView.findViewById<RelativeLayout>(R.id.root_container)
+        val mainIcon = floatingView.findViewById<ImageView>(R.id.collapsed_iv)
+        val menuLayout = floatingView.findViewById<LinearLayout>(R.id.menu_layout)
+
+        // Logika Klik: Munculkan/Sembunyikan Menu
+        mainIcon.setOnClickListener {
+            isMenuOpen = !isMenuOpen
+            menuLayout.visibility = if (isMenuOpen) View.VISIBLE else View.GONE
+        }
+
+        // Tombol-Tombol Menu
+        floatingView.findViewById<ImageButton>(R.id.btn_record).setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) { /* Mulai Rekam */ }
+            if (event.action == MotionEvent.ACTION_UP) { /* Berhenti & Proses */ }
+            true
+        }
+
+        floatingView.findViewById<ImageButton>(R.id.btn_delete).setOnClickListener {
+            Toast.makeText(this, "Rekaman Dibuang", Toast.LENGTH_SHORT).show()
+        }
+
+        // Dragging Logic (Biar bisa digeser)
+        mainIcon.setOnTouchListener(object : View.OnTouchListener {
+            private var initialX = 0; private var initialY = 0
+            private var initialTouchX = 0f; private var initialTouchY = 0f
 
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        initialX = params.x
-                        initialY = params.y
-                        initialTouchX = event.rawX
-                        initialTouchY = event.rawY
-                        return true
+                        initialX = params.x; initialY = params.y
+                        initialTouchX = event.rawX; initialTouchY = event.rawY
+                        return false // Biar onClick tetep jalan
                     }
                     MotionEvent.ACTION_MOVE -> {
                         params.x = initialX + (event.rawX - initialTouchX).toInt()
                         params.y = initialY + (event.rawY - initialTouchY).toInt()
-                        windowManager.updateViewLayout(floatingBall, params)
-                        return true
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        val diffX = Math.abs(event.rawX - initialTouchX)
-                        val diffY = Math.abs(event.rawY - initialTouchY)
-
-                        // Jika jarak geser kecil, dianggap KLIK
-                        if (diffX < 10 && diffY < 10) {
-                            toggleVoiceChanger()
-                        }
+                        windowManager.updateViewLayout(floatingView, params)
                         return true
                     }
                 }
@@ -94,32 +79,12 @@ floatingBall.setImageResource(R.drawable.logo_kamu)
             }
         })
 
-        windowManager.addView(floatingBall, params)
-    }
-
-    private fun toggleVoiceChanger() {
-        if (!isRecording) {
-            // Mulai rekam & ubah suara (Contoh: Pitch 2.0 = Suara Chipmunk)
-            try {
-                audioProcessor.startChangingVoice(2.0)
-                isRecording = true
-                floatingBall.alpha = 0.5f // Tandanya lagi aktif
-                Toast.makeText(this, "Voice Changer Aktif!", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Toast.makeText(this, "Gagal akses Mic!", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            // Berhenti
-            audioProcessor.stopProcessing()
-            isRecording = false
-            floatingBall.alpha = 1.0f
-            Toast.makeText(this, "Voice Changer Mati", Toast.LENGTH_SHORT).show()
-        }
+        windowManager.addView(floatingView, params)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        audioProcessor.stopProcessing()
-        if (::floatingBall.isInitialized) windowManager.removeView(floatingBall)
+        if (::floatingView.isInitialized) windowManager.removeView(floatingView)
     }
 }
+
