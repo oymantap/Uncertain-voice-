@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace 'com.rycl.uncertainvoice'
-    compileSdk 33
+    compileSdk 34 // Disarankan pakai 34 untuk standar terbaru
 
     defaultConfig {
         applicationId "com.rycl.uncertainvoice"
@@ -35,7 +35,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
     
-    // Library pengubah suara
-    implementation 'com.github.JorenSix:TarsosDSP:2.4'
+    // PERBAIKAN DI SINI: Alamat JitPack yang benar untuk TarsosDSP
+    implementation 'com.github.JorenSix:TarsosDSP:TarsosDSP-2.4'
 }
-
