@@ -10,6 +10,10 @@ import android.widget.ImageView
 import android.view.MotionEvent
 import android.view.View
 
+// Tambahkan variabel di atas class FloatingService
+private var isRecording = false
+private val audioProcessor = AudioProcessor()
+
 class FloatingService : Service() {
 
     private lateinit var windowManager: WindowManager
@@ -60,10 +64,27 @@ class FloatingService : Service() {
                         windowManager.updateViewLayout(floatingBall, params)
                         return true
                     }
-                    MotionEvent.ACTION_UP -> {
-                        // Di sini nanti kita tambah logika: kalau diklik muncul menu
-                        return true
-                    }
+                    // Di dalam setOnTouchListener, bagian ACTION_UP:
+MotionEvent.ACTION_UP -> {
+    val diffX = (event.rawX - initialTouchX).toInt()
+    val diffY = (event.rawY - initialTouchY).toInt()
+
+    // Jika user cuma klik (bukan geser)
+    if (diffX < 10 && diffY < 10) {
+        if (!isRecording) {
+            // Mulai rekam & ubah suara (Contoh: Pitch 1.5 buat suara anak kecil)
+            audioProcessor.startChangingVoice(1.5)
+            floatingBall.alpha = 0.5f // Kasih efek transparan pas lagi rekam
+            isRecording = true
+        } else {
+            // Berhenti
+            audioProcessor.stopProcessing()
+            floatingBall.alpha = 1.0f
+            isRecording = false
+        }
+    }
+    return true
+}
                 }
                 return false
             }
