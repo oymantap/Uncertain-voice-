@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Sesuaiin sama XML lo (btn_activate & btn_stop_service)
         val btnActivate = findViewById<Button>(R.id.btn_activate)
         val btnStop = findViewById<Button>(R.id.btn_stop_service)
         val statusEngine = findViewById<TextView>(R.id.status_engine)
@@ -48,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btn_activate).visibility = View.GONE
         findViewById<Button>(R.id.btn_stop_service).visibility = View.VISIBLE
         findViewById<TextView>(R.id.status_engine).text = "● ENGINE STATUS: ACTIVE"
+        findViewById<TextView>(R.id.status_engine).setTextColor(android.graphics.Color.CYAN)
         Toast.makeText(this, "Node Activated!", Toast.LENGTH_SHORT).show()
     }
 }
