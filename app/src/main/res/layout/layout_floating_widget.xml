@@ -5,25 +5,41 @@
     android:orientation="horizontal"
     android:background="@drawable/cyber_panel"
     android:gravity="center_vertical"
-    android:padding="8dp">
+    android:padding="6dp">
+
     <ImageView
         android:id="@+id/collapsed_iv"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:background="@drawable/neon_circle"
-        android:padding="10dp"
-        android:src="@drawable/logo_kamu" /> <LinearLayout
+        android:padding="8dp"
+        android:elevation="5dp"
+        android:src="@drawable/logo_kamu" />
+
+    <LinearLayout
         android:id="@+id/menu_layout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:visibility="gone"
         android:orientation="horizontal"
-        android:layout_marginStart="10dp">
-        <ImageButton android:id="@+id/btn_record" android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_btn_speak_now" android:background="#22FF00FF"/>
-        <ImageButton android:id="@+id/btn_delete" android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_delete" android:background="?android:attr/selectableItemBackground"/>
-        <ImageButton android:id="@+id/btn_voice_girl" android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/btn_star_big_on" />
-        <ImageButton android:id="@+id/btn_voice_alien" android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_help" />
-        <ImageButton android:id="@+id/btn_play" android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_media_play" />
-        <ImageButton android:id="@+id/btn_close_menu" android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_close_clear_cancel" />
+        android:gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        android:paddingEnd="8dp">
+
+        <ImageButton android:id="@+id/btn_record" android:layout_width="45dp" android:layout_height="45dp" 
+            android:src="@android:drawable/ic_btn_speak_now" android:background="#33FF00FF" android:layout_marginEnd="4dp"/>
+        
+        <ImageButton android:id="@+id/btn_voice_girl" android:layout_width="45dp" android:layout_height="45dp" 
+            android:src="@android:drawable/btn_star_big_on" android:background="#1A00F3FF" android:layout_marginEnd="4dp"/>
+        
+        <ImageButton android:id="@+id/btn_voice_alien" android:layout_width="45dp" android:layout_height="45dp" 
+            android:src="@android:drawable/ic_menu_help" android:background="#1A00F3FF" android:layout_marginEnd="4dp"/>
+        
+        <ImageButton android:id="@+id/btn_play" android:layout_width="45dp" android:layout_height="45dp" 
+            android:src="@android:drawable/ic_media_play" android:background="#3339FF14" android:layout_marginEnd="4dp"/>
+
+        <ImageButton android:id="@+id/btn_delete" android:layout_width="45dp" android:layout_height="45dp" 
+            android:src="@android:drawable/ic_menu_delete" android:background="#00000000"/>
     </LinearLayout>
 </LinearLayout>
+
