@@ -15,17 +15,14 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # Ini cara paling ampuh buat maksa Gradle versi 8.5
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: 8.5
 
-    - name: Grant Execute Permission
-      run: chmod +x gradlew
-
+    # KITA GANTI ./gradlew JADI gradle BIASA
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace
+      run: gradle assembleDebug --stacktrace
 
     - name: Upload APK Result
       uses: actions/upload-artifact@v4
