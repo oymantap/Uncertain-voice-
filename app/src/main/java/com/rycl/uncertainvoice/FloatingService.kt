@@ -3,24 +3,25 @@ package com.rycl.uncertainvoice
 import android.app.Service
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.media.*
 import android.os.IBinder
 import android.view.*
 import android.widget.*
-import android.graphics.drawable.GradientDrawable
-import android.graphics.Color
+import java.io.File
+import kotlin.concurrent.thread
 
 class FloatingService : Service() {
     private lateinit var windowManager: WindowManager
     private lateinit var floatingView: View
-    private var isMenuOpen = false
+    private var isRecording = false
+    private var audioFile: File? = null
+    private var pitchValue = 1.0f // Normal
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        
-        // Buat View Utama (Bola Floating)
         floatingView = LayoutInflater.from(this).inflate(R.layout.layout_floating_widget, null)
 
         val params = WindowManager.LayoutParams(
@@ -29,57 +30,56 @@ class FloatingService : Service() {
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
-        )
-
-        params.gravity = Gravity.TOP or Gravity.START
-        params.x = 100
-        params.y = 100
-
-        val rootBase = floatingView.findViewById<RelativeLayout>(R.id.root_container)
-        val mainIcon = floatingView.findViewById<ImageView>(R.id.collapsed_iv)
-        val menuLayout = floatingView.findViewById<LinearLayout>(R.id.menu_layout)
-
-        // Logika Klik: Munculkan/Sembunyikan Menu
-        mainIcon.setOnClickListener {
-            isMenuOpen = !isMenuOpen
-            menuLayout.visibility = if (isMenuOpen) View.VISIBLE else View.GONE
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+            x = 100; y = 100
         }
 
-        // Tombol-Tombol Menu
-        floatingView.findViewById<ImageButton>(R.id.btn_record).setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) { /* Mulai Rekam */ }
-            if (event.action == MotionEvent.ACTION_UP) { /* Berhenti & Proses */ }
+        val menuLayout = floatingView.findViewById<LinearLayout>(R.id.menu_layout)
+        val btnRecord = floatingView.findViewById<ImageButton>(R.id.btn_record)
+        val btnPlay = floatingView.findViewById<ImageButton>(R.id.btn_play)
+        val btnClose = floatingView.findViewById<ImageButton>(R.id.btn_close) // Tambahin di XML nanti
+        val spinnerPitch = floatingView.findViewById<Spinner>(R.id.spinner_pitch) // Tambahin di XML nanti
+
+        // 1. Logika Klik Muncul Menu
+        floatingView.findViewById<ImageView>(R.id.collapsed_iv).setOnClickListener {
+            menuLayout.visibility = if (menuLayout.visibility == View.GONE) View.VISIBLE else View.GONE
+        }
+
+        // 2. Logika Rekam (Tahan untuk Rekam)
+        btnRecord.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> startRecording()
+                MotionEvent.ACTION_UP -> stopRecording()
+            }
             true
         }
 
-        floatingView.findViewById<ImageButton>(R.id.btn_delete).setOnClickListener {
-            Toast.makeText(this, "Rekaman Dibuang", Toast.LENGTH_SHORT).show()
-        }
+        // 3. Logika Play (Ubah Suara di Sini)
+        btnPlay.setOnClickListener { playVoice() }
 
-        // Dragging Logic (Biar bisa digeser)
-        mainIcon.setOnTouchListener(object : View.OnTouchListener {
-            private var initialX = 0; private var initialY = 0
-            private var initialTouchX = 0f; private var initialTouchY = 0f
-
-            override fun onTouch(v: View, event: MotionEvent): Boolean {
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        initialX = params.x; initialY = params.y
-                        initialTouchX = event.rawX; initialTouchY = event.rawY
-                        return false // Biar onClick tetep jalan
-                    }
-                    MotionEvent.ACTION_MOVE -> {
-                        params.x = initialX + (event.rawX - initialTouchX).toInt()
-                        params.y = initialY + (event.rawY - initialTouchY).toInt()
-                        windowManager.updateViewLayout(floatingView, params)
-                        return true
-                    }
-                }
-                return false
-            }
-        })
+        // 4. Tombol Matikan Floating
+        btnClose.setOnClickListener { stopSelf() }
 
         windowManager.addView(floatingView, params)
+    }
+
+    private fun startRecording() {
+        isRecording = true
+        audioFile = File(externalCacheDir, "temp_voice.pcm")
+        Toast.makeText(this, "Recording...", Toast.LENGTH_SHORT).show()
+        // Di sini harusnya ada fungsi nulis byte ke file (logic AudioRecord)
+    }
+
+    private fun stopRecording() {
+        isRecording = false
+        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun playVoice() {
+        // Logika AudioTrack dengan pitchValue
+        // Semakin tinggi pitch, suara makin kayak Chipmunk
+        Toast.makeText(this, "Playing with Pitch: $pitchValue", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroy() {
@@ -87,4 +87,3 @@ class FloatingService : Service() {
         if (::floatingView.isInitialized) windowManager.removeView(floatingView)
     }
 }
-
