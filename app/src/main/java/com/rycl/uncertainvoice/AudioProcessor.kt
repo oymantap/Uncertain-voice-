@@ -1,32 +1,42 @@
 package com.rycl.uncertainvoice
 
-import be.tarsos.dsp.AudioDispatcher
-import be.tarsos.dsp.io.android.AudioDispatcherFactory
-import be.tarsos.dsp.PitchShifter
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.AudioTrack
+import android.media.MediaRecorder
 import kotlin.concurrent.thread
 
 class AudioProcessor {
+    private var isRunning = false
+    private val sampleRate = 44100
 
-    private var dispatcher: AudioDispatcher? = null
-
-    // Fungsi untuk mulai memproses suara secara real-time
-    // pitchValue: 1.0 (normal), 2.0 (Chipmunk), 0.5 (Deep/Monster)
-    fun startChangingVoice(pitchValue: Double) {
-        // 1. Ambil audio dari Mic HP (Sample Rate 44100)
-        dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(44100, 1024, 0)
-        
-        // 2. Tambahkan efek Pitch Shifting
-        val pitchShifter = PitchShifter(pitchValue, 44100.0, 1024, 0)
-        dispatcher?.addAudioProcessor(pitchShifter)
-        
-        // 3. Jalankan proses di thread terpisah agar HP tidak lag
+    fun startChangingVoice(pitch: Double) {
+        isRunning = true
         thread {
-            dispatcher?.run()
+            val minBufSize = AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
+            val record = AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSize)
+            
+            // Trik ubah suara: Mainkan di sample rate yang berbeda (Lebih cepat = Chipmunk)
+            val playRate = (sampleRate * pitch).toInt() 
+            val track = AudioTrack(3, playRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufSize, AudioTrack.MODE_STREAM)
+
+            val buffer = ShortArray(minBufSize)
+            record.startRecording()
+            track.play()
+
+            while (isRunning) {
+                val read = record.read(buffer, 0, buffer.size)
+                track.write(buffer, 0, read)
+            }
+
+            record.stop()
+            record.release()
+            track.stop()
+            track.release()
         }
     }
 
     fun stopProcessing() {
-        dispatcher?.stop()
+        isRunning = false
     }
 }
-
