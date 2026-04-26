@@ -3,23 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0A0A0C">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="25dp"
         android:gravity="center_horizontal">
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="UNCERTAIN VOICE"
             android:textColor="#00F3FF"
             android:textSize="28sp"
-            android:textStyle="bold"
-            android:fontFamily="serif" />
-
+            android:textStyle="bold" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,44 +30,19 @@
                 android:textColor="#39FF14"
                 android:textStyle="bold"/>
         </LinearLayout>
-
         <Button
             android:id="@+id/btn_activate"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:text="ACTIVATE FLOATING NODE"
             android:backgroundTint="#FF00FF"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="20dp"/>
-
+            android:textColor="#FFFFFF" />
         <Button
             android:id="@+id/btn_stop_service"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:text="TERMINATE NODE"
             android:visibility="gone"
-            android:backgroundTint="#666666"
-            android:layout_marginBottom="20dp"/>
-
-        <GridLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="2"
-            android:alignmentMode="alignMargins">
-            <Button android:text="TIKTOK" android:layout_columnWeight="1" android:backgroundTint="#000000" android:layout_margin="5dp"/>
-            <Button android:text="YOUTUBE" android:layout_columnWeight="1" android:backgroundTint="#FF0000" android:layout_margin="5dp"/>
-        </GridLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="#0DFFFFFF"
-            android:padding="15dp"
-            android:layout_marginTop="20dp">
-            <TextView android:text="SYSTEM_GUIDE:" android:textColor="#00F3FF" android:textStyle="bold" />
-            <TextView android:text="1. Click Activate Node\n2. Grant Overlay\n3. Hold Icon to Record\n4. Pick Filter and Play" android:textColor="#CCCCCC" />
-        </LinearLayout>
+            android:backgroundTint="#666666" />
     </LinearLayout>
 </ScrollView>
-
