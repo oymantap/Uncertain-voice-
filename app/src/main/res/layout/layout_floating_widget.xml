@@ -9,48 +9,28 @@
 
     <ImageView
         android:id="@+id/collapsed_iv"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
         android:background="@drawable/neon_circle"
-        android:padding="8dp"
+        android:padding="10dp"
         android:src="@drawable/logo_kamu" />
 
     <LinearLayout
         android:id="@+id/menu_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:visibility="gone"
         android:gravity="center_vertical"
-        android:visibility="gone">
+        android:orientation="horizontal"
+        android:layout_marginStart="10dp">
 
-        <View
-            android:layout_width="30dp"
-            android:layout_height="20dp"
-            android:layout_marginHorizontal="10dp"
-            android:background="#3300FFFF" />
-
-        <ImageButton
-            android:id="@+id/btn_record"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:src="@android:drawable/ic_btn_speak_now" />
-
-        <ImageButton
-            android:id="@+id/btn_play"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:src="@android:drawable/ic_media_play" />
-
-        <ImageButton
-            android:id="@+id/btn_close"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:background="?android:attr/selectableItemBackground"
-            android:src="@android:drawable/ic_menu_close_clear_cancel" />
-
+        <ImageButton android:id="@+id/btn_record" android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_btn_speak_now" android:background="#22FF00FF"/>
+        <ImageButton android:id="@+id/btn_delete" android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_delete" android:background="?android:attr/selectableItemBackground"/>
+        
+        <ImageButton android:id="@+id/btn_voice_girl" android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/btn_star_big_on" android:contentDescription="Girl"/>
+        <ImageButton android:id="@+id/btn_voice_alien" android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_menu_help" android:contentDescription="Alien"/>
+        
+        <ImageButton android:id="@+id/btn_play" android:layout_width="50dp" android:layout_height="50dp" android:src="@android:drawable/ic_media_play" />
+        <ImageButton android:id="@+id/btn_close_menu" android:layout_width="40dp" android:layout_height="40dp" android:src="@android:drawable/ic_menu_close_clear_cancel" />
     </LinearLayout>
-
 </LinearLayout>
-
