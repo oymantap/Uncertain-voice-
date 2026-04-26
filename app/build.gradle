@@ -35,6 +35,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
     
-    // Pakai cara ini supaya JitPack gak bingung nyari filenya
-    implementation 'com.github.JorenSix:TarsosDSP:v2.4'
+    // Ini alamat "paksa" langsung ke titik kodenya
+    implementation 'com.github.JorenSix:TarsosDSP:201083417e'
 }
