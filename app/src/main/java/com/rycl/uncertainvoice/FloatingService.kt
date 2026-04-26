@@ -27,7 +27,21 @@ class FloatingService : Service() {
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
         // 1. Buat tampilan bola (Pakai icon sistem dulu biar nggak error build)
-        floatingBall = ImageView(this)
+        // Di dalam onCreate() FloatingService.kt
+floatingBall = ImageView(this)
+
+// Kasih background putih bulat biar logo hitam kamu kelihatan
+val shape = android.graphics.drawable.GradientDrawable()
+shape.shape = android.graphics.drawable.GradientDrawable.OVAL
+shape.setColor(android.graphics.Color.WHITE) // Background Putih
+floatingBall.background = shape
+
+// Atur padding biar logonya gak nempel ke pinggir background putih
+floatingBall.setPadding(20, 20, 20, 20)
+
+// Baru pasang logo kamu (Pastikan filenya sudah di-upload ke drawable)
+floatingBall.setImageResource(R.drawable.logo_kamu) 
+
         floatingBall.setImageResource(android.R.drawable.ic_btn_speak_now) 
 
         // 2. Atur posisi dan tipe jendela (Overlay)
