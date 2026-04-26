@@ -1,15 +1,10 @@
 name: Build Uncertain Voice APK
 
-on:
-  push:
-    branches: [ "main", "master" ] # Jalankan setiap kali kamu save/commit
-  pull_request:
-    branches: [ "main", "master" ]
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout Script
       uses: actions/checkout@v4
@@ -19,9 +14,12 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
-    - name: Grant Execute Permission for Gradlew
+    # LANGKAH PERBAIKAN: Kita bikin ulang wrapper-nya biar gak corrupt
+    - name: Repair Gradle Wrapper
+      run: gradle wrapper
+
+    - name: Grant Execute Permission
       run: chmod +x gradlew
 
     - name: Build Debug APK
