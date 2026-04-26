@@ -4,17 +4,18 @@ import android.app.Service
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.media.*
-import android.os.Build  // <--- INI YANG KURANG, RYCL! JANGAN SAMPE KETINGGALAN
+import android.os.Build
 import android.os.IBinder
 import android.view.*
 import android.widget.*
+import androidx.appcompat.view.ContextThemeWrapper
 import java.io.File
 import java.io.FileOutputStream
 
 class FloatingService : Service() {
     private lateinit var windowManager: WindowManager
-    private lateinit var params: WindowManager.LayoutParams
     private lateinit var floatingView: View
+    private lateinit var params: WindowManager.LayoutParams
     private var recorder: AudioRecord? = null
     private var isRecording = false
     private var audioFile: File? = null
@@ -25,28 +26,20 @@ class FloatingService : Service() {
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        
-        // Inflate layout XML lo
-        floatingView = LayoutInflater.from(this).inflate(R.layout.layout_floating_widget, null)
+        val themedContext = ContextThemeWrapper(this, androidx.appcompat.R.style.Theme_AppCompat_NoActionBar)
+        floatingView = LayoutInflater.from(themedContext).inflate(R.layout.layout_floating_widget, null)
+
+        val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) 
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_PHONE
 
         params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) 
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY 
-            else WindowManager.LayoutParams.TYPE_PHONE,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.TOP or Gravity.START
-            x = 100
-            y = 100
-        }
+            WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
+            layoutType, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT
+        ).apply { gravity = Gravity.TOP or Gravity.START; x = 100; y = 100 }
 
         val mainIcon = floatingView.findViewById<ImageView>(R.id.collapsed_iv)
         val menuLayout = floatingView.findViewById<LinearLayout>(R.id.menu_layout)
         
-        // --- LOGIKA GESER & KLIK ICON ---
         mainIcon.setOnTouchListener(object : View.OnTouchListener {
             private var initialX = 0; private var initialY = 0
             private var initialTouchX = 0f; private var initialTouchY = 0f
@@ -64,9 +57,8 @@ class FloatingService : Service() {
                         return true
                     }
                     MotionEvent.ACTION_UP -> {
-                        if (Math.abs(event.rawX - initialTouchX) < 10) {
+                        if (Math.abs(event.rawX - initialTouchX) < 10) 
                             menuLayout.visibility = if (menuLayout.visibility == View.GONE) View.VISIBLE else View.GONE
-                        }
                         return true
                     }
                 }
@@ -74,39 +66,19 @@ class FloatingService : Service() {
             }
         })
 
-        // --- BUTTONS ---
-        floatingView.findViewById<ImageButton>(R.id.btn_record).setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) startRecording()
-            else if (event.action == MotionEvent.ACTION_UP) stopRecording()
+        floatingView.findViewById<ImageButton>(R.id.btn_record).setOnTouchListener { _, e ->
+            if (e.action == MotionEvent.ACTION_DOWN) startRecording()
+            else if (e.action == MotionEvent.ACTION_UP) stopRecording()
             true
         }
 
-        floatingView.findViewById<ImageButton>(R.id.btn_voice_girl).setOnClickListener {
-            currentPitch = 1.8f
-            Toast.makeText(this, "Filter: Girl", Toast.LENGTH_SHORT).show()
-        }
-
-        floatingView.findViewById<ImageButton>(R.id.btn_voice_alien).setOnClickListener {
-            currentPitch = 0.5f
-            Toast.makeText(this, "Filter: Alien", Toast.LENGTH_SHORT).show()
-        }
-
+        floatingView.findViewById<ImageButton>(R.id.btn_voice_girl).setOnClickListener { currentPitch = 1.8f }
+        floatingView.findViewById<ImageButton>(R.id.btn_voice_alien).setOnClickListener { currentPitch = 0.5f }
         floatingView.findViewById<ImageButton>(R.id.btn_play).setOnClickListener { playVoice() }
-        
-        floatingView.findViewById<ImageButton>(R.id.btn_delete).setOnClickListener {
-            audioFile?.delete()
-            Toast.makeText(this, "Voice Purged!", Toast.LENGTH_SHORT).show()
-        }
+        floatingView.findViewById<ImageButton>(R.id.btn_delete).setOnClickListener { audioFile?.delete() }
+        floatingView.findViewById<ImageButton>(R.id.btn_close_menu).setOnClickListener { menuLayout.visibility = View.GONE }
 
-        floatingView.findViewById<ImageButton>(R.id.btn_close_menu).setOnClickListener {
-            menuLayout.visibility = View.GONE
-        }
-
-        try {
-            windowManager.addView(floatingView, params)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        windowManager.addView(floatingView, params)
     }
 
     private fun startRecording() {
@@ -123,10 +95,7 @@ class FloatingService : Service() {
         }.start()
     }
 
-    private fun stopRecording() {
-        isRecording = false
-        recorder?.stop(); recorder?.release(); recorder = null
-    }
+    private fun stopRecording() { isRecording = false; recorder?.stop(); recorder?.release(); recorder = null }
 
     private fun playVoice() {
         if (audioFile == null || !audioFile!!.exists()) return
@@ -140,8 +109,5 @@ class FloatingService : Service() {
         track.play()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        if (::floatingView.isInitialized) windowManager.removeView(floatingView)
-    }
+    override fun onDestroy() { super.onDestroy(); if (::floatingView.isInitialized) windowManager.removeView(floatingView) }
 }
